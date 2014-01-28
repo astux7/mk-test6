@@ -19,6 +19,7 @@ describe Editor do
     expect(lambda { editor.check_command("K 88 9")}).to raise_error(RuntimeError)
   end  
 
+  # The test says that it should raise an error but the code doesn't throw an exception
   it 'should raise error cause not init the image first for F 3 3 J' do
     expect(editor.prepare_command("F 3 3 J")) .to eq(["3","3","J"])
   end
@@ -27,6 +28,8 @@ describe Editor do
     expect(lambda { editor.prepare_command("F 3 3")}).to raise_error(RuntimeError)
  
   end
+
+  # This is exactly what another test is doing (line 24), why?
   it 'should return the args for method F 3 3 J' do
     expect(editor.prepare_command("F 3 3 J")) .to eq(["3","3","J"]) 
   end
