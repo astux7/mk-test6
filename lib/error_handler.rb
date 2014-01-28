@@ -1,5 +1,8 @@
 module ErrorHandler
 
+  # 1. Please pay attention to the indentation. Many Ruby devs are very particular about it
+  # 2. How come an ErrorHandler is responsible for printing the menu? This functionality has nothing
+  # to do with error handling.
     PROGRAM_PHRASES = {
       "menu" => "\n\nEditor Commands as follow:\n
       > I M N - Create image MxN\n
@@ -31,13 +34,17 @@ module ErrorHandler
       "out_range" => "\nNumber is out of range\n"
     }
 
+  # Again, how come ErroHandler is responsible for the output?
+  # Also, many developers would sneer at using a boolean argument to dramatically alter the 
+  # behaviour of the method (print vs raise). A better approach would me to split this method in two.
     #printing to console 
   def user_output(phrase, error = false) 
     phrase = PROGRAM_PHRASES[phrase]
     raise phrase if error == true
-    print phrase if !phrase.nil? 
+    print phrase if phrase
   end
 
+  # Same problem as other methods that end in "?"
   def check_color?(color)
     color_template = /\A[A-Z]\z/
     user_output("bad_color", true) unless color_template.match(color.to_s)
@@ -45,33 +52,41 @@ module ErrorHandler
   end
 
   def is_numeric?(number) 
-    number_tempate = /\A\+?0*[1-9]\d*\Z/
+    number_tempate = /\A\+?0*[1-9]\d*\Z/ # spelling: template
     user_output("bad_numeric", true) unless number_tempate.match(number.to_s)
     true
   end
 
+  # This method raises an error or returns a number. It would be cleaner to return either true or false
+  # depending if it's in the range and then raise the error elsewhere
   def check_coordinate(coordinate, size = 250)
     user_output("out_range", true) unless is_numeric?(coordinate) && coordinate.to_i <= size
-    return coordinate.to_i
+    coordinate.to_i
   end
 
+  # same problem as with other methods with "?" as well as the previous one
   def check_image_range?(m, n) 
     n = n.to_i if is_numeric?(n.to_i)
     m = m.to_i if is_numeric?(m.to_i)
+    # magic numbers again
     user_output("bad_img_range", true) if m < 1 || m > 250 || n < 1 || n > 250
     true
   end
   
+  # a method with a question mark should never raise an error
   def x_bigger_y?(x,y)
     user_output("x_bigger_y", true) if x > y
     true
   end
 
+  # A method that ends with "?" should not do any work
   def check_arguments_number?(command, number)
     user_output("bad_args", true) if number != command.count
-    true
+    true # I guess you're doing it because a method with "?" is supposed to always return a boolean but
+    # a better solution would be to change the name of this method
   end
 
+  # Same comment here (see above)
   def check_if_positive_integers?(number_list)
     number_list.each{|number| 
       check_coordinate(number)

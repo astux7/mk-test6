@@ -20,7 +20,7 @@ class Image
   # color single pixel
   def colored_pixel(x, y, color)
     x, y = check_coordinate(x, @m_columns), check_coordinate(y, @n_rows)
-    check_color?(color)
+    check_color?(color) # same problem: methods with ? shouldn't do any work
     @pixels[(x-1)+(y-1)*@m_columns].color = color
   end
   #colored Vertical line
@@ -61,24 +61,28 @@ class Image
   end
 
   def recursion_area_to_fill(x,y,color_old, color,list)
-    
+    # you're doing two things here. Firstly, you're maintaining the list
+    # of coordinates to fill. Secondly, you're using recursion to go through
+    # this list. If you're using a recursive solution, you don't need to 
+    # maintain the list (but you'd need to do it if you were iterating over it instead).
+    # In other words, the solution could be simpler.
     list = update_list(x,y,color_old, color,list)
     if !list.empty?
       coor = list.shift
       recursion_area_to_fill(coor[0],coor[1],color_old,color,list)
     end 
-    return
+    return # an empty return at the end of the method is pointless
   end
 
   def update_list(x,y,color_old, color,list)
     neighbors = [[x,y-1],[x-1,y],[x+1,y],[x,y+1]]
-    neighbors.each{|px|
+    neighbors.each do |px|
       index = find_pixel_index(px[0], px[1])
-      if index!= nil && @pixels[index].color == color_old
+      if index && @pixels[index].color == color_old
         list <<  [@pixels[index].x, @pixels[index].y]
         @pixels[index].color = color;
       end
-    }
+    end
     list
   end
 
@@ -91,15 +95,14 @@ class Image
   end
   #check vertical line coordinates and color
   def check_vertical_line_params(x1, x2, x3, color)
-    coords = check_line_coordinates(x1, x2, x3)
-    x_bigger_y?(x2, x3)
+    x_bigger_y?(x2, x3) # it's absolutely not obvious from this line that this may raise an error
     check_color?(color)
-    coords
+    check_line_coordinates(x1, x2, x3)
   end
   #Horizontal coordinates line draw
   def prepare_horizontal_line(x1, x2, x3)
     result = []
-    x1.upto(x2){|iter| result << [iter, x3] }
+    x1.upto(x2){|iter| result << [iter, x3] } # case for inject?
     result
   end
   #check line coordinates
@@ -145,18 +148,19 @@ class Image
     group_pixels = same_color_pixels(x, y)
     return group_pixels if group_pixels.count == pixels_count
     group_pixels.each{|px| find_pixel_neighbors(px.x, px.y, color) } 
-    return []
+    []
   end
   #if x or y exist in image
   def exist_coordinate?(coord, size)
-    return coord >=1 && coord <= size ? true : false
+    coord >=1 && coord <= size # or (1..size).include? coord
   end
   #if both coordinates is in range of image
   def exist_x_y?(x,y)
-    return exist_coordinate?(y, @n_rows) && exist_coordinate?(x, @m_columns) ? true : false
+    exist_coordinate?(y, @n_rows) && exist_coordinate?(x, @m_columns)
   end
   #finds pixel neighbors coordinates
   def find_pixel_neighbors(x, y, color)
+    # If this comment isn't necessary, don't include it in the submitted code
    # neighbors = [[x-1,y-1],[x,y-1],[x+1,y-1],[x-1,y],[x,y],[x+1,y],[x-1,y+1],[x,y+1],[x+1,y+1]]
     neighbors = [[x,y-1],[x-1,y],[x,y],[x+1,y],[x,y+1]]
     prepare_pixel_neighbors(neighbors, color)
